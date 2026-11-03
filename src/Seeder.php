@@ -18,12 +18,14 @@ class Seeder
         self::runSeed($db);
     }
 
-    public static function runSeed(PDO $db): void
+    public static function runSeed(PDO $db): bool
     {
-        // Buscar archivo json en rutas posibles
+        // Buscar archivo json en rutas posibles (priorizando src/data/ que no se enmascara con volúmenes de Docker)
         $candidates = [
-            dirname(__DIR__, 2) . '/database/productos.json',
+            __DIR__ . '/data/productos.json',
+            '/var/www/src/data/productos.json',
             '/var/www/database/productos.json',
+            dirname(__DIR__, 2) . '/database/productos.json',
             dirname(__DIR__) . '/database/productos.json',
         ];
 
@@ -36,13 +38,15 @@ class Seeder
         }
 
         if (!$jsonPath) {
-            return;
+            error_log('⚠️ Akami Seeder: No se encontró productos.json en ninguna ruta candidata.');
+            return false;
         }
 
         $raw = file_get_contents($jsonPath);
         $products = json_decode($raw, true);
         if (!is_array($products)) {
-            return;
+            error_log('❌ Akami Seeder: El archivo productos.json no contiene un array válido.');
+            return false;
         }
 
         $brands = [];
@@ -68,7 +72,7 @@ class Seeder
         }
 
         $prodStmt = $db->prepare('
-            INSERT INTO products (
+            INSERT OR REPLACE INTO products (
                 id, title, brand, category, price, image, gallery, description,
                 skin_types, compatibility, attributes, ingredients, benefits,
                 use_instructions, is_active, created_at, updated_at
@@ -109,5 +113,8 @@ class Seeder
                 ':is_active' => 1,
             ]);
         }
+
+        error_log('✅ Akami Seeder: ' . count($products) . ' productos y ' . count($brands) . ' marcas sembradas con éxito.');
+        return true;
     }
 }

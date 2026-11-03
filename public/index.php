@@ -238,6 +238,22 @@ try {
         jsonResponse(['success' => true, 'data' => $result]);
     }
 
+    // Re-seed / Inicializar catálogo oficial desde el CMS
+    if ($uri === '/admin/seed' && ($method === 'POST' || $method === 'GET')) {
+        $requireAuth();
+        $ok = \Akami\Seeder::runSeed($db);
+        $count = (int) $db->query('SELECT COUNT(*) FROM products')->fetchColumn();
+        $bCount = (int) $db->query('SELECT COUNT(*) FROM brands')->fetchColumn();
+        $cCount = (int) $db->query('SELECT COUNT(*) FROM categories')->fetchColumn();
+        jsonResponse([
+            'success' => $ok,
+            'message' => "Seeding completado: {$count} productos, {$bCount} marcas, {$cCount} categorías.",
+            'products_count' => $count,
+            'brands_count' => $bCount,
+            'categories_count' => $cCount,
+        ]);
+    }
+
     // CRUD Marcas Admin
     if ($uri === '/admin/brands' && $method === 'POST') {
         $requireAuth();
