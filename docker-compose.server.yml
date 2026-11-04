@@ -1,0 +1,24 @@
+# 🐳 Docker Compose — Akami API (Servidor AWS / Producción)
+# Microservicio Backend RESTful en puerto 15001
+
+services:
+  api_akami:
+    image: juaneliezer13/akami-api:latest
+    container_name: api_akami
+    restart: unless-stopped
+    ports:
+      - "${BACK_PORT:-15001}:8000"
+    volumes:
+      - ${DB_DIR:-../database}:/var/www/database
+      - ${UPLOADS_DIR:-../uploads}:/var/www/uploads
+    environment:
+      - TZ=America/Caracas
+      - UPLOAD_DIR=/var/www/uploads/products
+      - DB_PATH=/var/www/database/akami.sqlite
+    networks:
+      - akami_network
+
+networks:
+  akami_network:
+    name: akami_network
+    driver: bridge
