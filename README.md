@@ -57,23 +57,23 @@ Backend RESTful ligero en **PHP 8.2** con base de datos **SQLite** (PDO WAL mode
 
 ---
 
-## 🐳 Despliegue con Docker
+## 🐳 Despliegue con Docker Compose (Puerto 15001)
 
-### Construcción local:
+### Ejecución autónoma:
 ```bash
-docker build -t juaneliezer13/akami-api:latest .
+# Iniciar microservicio backend en puerto 15001
+docker compose up -d
+
+# Detener microservicio
+docker compose down
 ```
 
-### Ejecución en contenedor:
+### Configuración personalizada (.env):
+Copia `.env.example` a `.env` para personalizar el puerto o las rutas de volumen:
 ```bash
-docker run -d \
-  --name api_akami \
-  -p 8000:8000 \
-  -v $(pwd)/database:/var/www/database \
-  -v $(pwd)/uploads:/var/www/uploads \
-  -e UPLOAD_DIR=/var/www/uploads/products \
-  -e DB_PATH=/var/www/database/akami.sqlite \
-  juaneliezer13/akami-api:latest
+BACK_PORT=15001
+DB_DIR=../database
+UPLOADS_DIR=../uploads
 ```
 
 ---
