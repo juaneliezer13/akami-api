@@ -29,13 +29,13 @@ class UploadController
                 throw new \RuntimeException('No se ha enviado ningún archivo.');
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                throw new \RuntimeException('El archivo supera el tamaño máximo permitido (5MB).');
+                throw new \RuntimeException('El archivo supera el tamaño máximo permitido (25MB).');
             default:
                 throw new \RuntimeException('Error desconocido al subir el archivo.');
         }
 
-        if ($file['size'] > 5 * 1024 * 1024) {
-            throw new \RuntimeException('El archivo supera los 5MB.');
+        if ($file['size'] > 25 * 1024 * 1024) {
+            throw new \RuntimeException('El archivo supera los 25MB.');
         }
 
         // Validar tipo MIME
@@ -43,13 +43,16 @@ class UploadController
         $mime = $finfo->file($file['tmp_name']);
         $allowed = [
             'image/jpeg' => 'jpg',
+            'image/pjpeg' => 'jpg',
             'image/png' => 'png',
+            'image/x-png' => 'png',
             'image/webp' => 'webp',
             'image/gif' => 'gif',
+            'image/avif' => 'avif',
         ];
 
         if (!isset($allowed[$mime])) {
-            throw new \RuntimeException('Formato no permitido. Solo se aceptan imágenes JPG, PNG o WebP.');
+            throw new \RuntimeException('Formato no permitido. Solo se aceptan imágenes JPG, PNG, WebP o AVIF.');
         }
 
         $ext = $allowed[$mime];

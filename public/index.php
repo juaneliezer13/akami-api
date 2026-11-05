@@ -174,9 +174,15 @@ try {
         $data = getJsonInput();
 
         // Si se envió un archivo de imagen en la misma petición
-        if (!empty($_FILES['image_file'])) {
-            $uploadRes = $uploadCtrl->handleUpload($_FILES['image_file']);
-            $data['image'] = $uploadRes['url'];
+        if (!empty($_FILES['image_file']) && isset($_FILES['image_file']['error'])) {
+            if ($_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+                $uploadRes = $uploadCtrl->handleUpload($_FILES['image_file']);
+                $data['image'] = $uploadRes['url'];
+            } elseif ($_FILES['image_file']['error'] === UPLOAD_ERR_INI_SIZE || $_FILES['image_file']['error'] === UPLOAD_ERR_FORM_SIZE) {
+                jsonError('La imagen supera el tamaño máximo permitido (25MB).', 400);
+            } elseif ($_FILES['image_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+                jsonError('Error al procesar la imagen (código: ' . $_FILES['image_file']['error'] . ').', 400);
+            }
         }
 
         $created = $productCtrl->create($data);
@@ -189,9 +195,15 @@ try {
         $id = (int) $matches[1];
         $data = getJsonInput();
 
-        if (!empty($_FILES['image_file'])) {
-            $uploadRes = $uploadCtrl->handleUpload($_FILES['image_file']);
-            $data['image'] = $uploadRes['url'];
+        if (!empty($_FILES['image_file']) && isset($_FILES['image_file']['error'])) {
+            if ($_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+                $uploadRes = $uploadCtrl->handleUpload($_FILES['image_file']);
+                $data['image'] = $uploadRes['url'];
+            } elseif ($_FILES['image_file']['error'] === UPLOAD_ERR_INI_SIZE || $_FILES['image_file']['error'] === UPLOAD_ERR_FORM_SIZE) {
+                jsonError('La imagen supera el tamaño máximo permitido (25MB).', 400);
+            } elseif ($_FILES['image_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+                jsonError('Error al procesar la imagen (código: ' . $_FILES['image_file']['error'] . ').', 400);
+            }
         }
 
         $updated = $productCtrl->update($id, $data);

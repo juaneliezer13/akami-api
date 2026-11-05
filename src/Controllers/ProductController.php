@@ -173,7 +173,7 @@ class ProductController
         $brand = isset($data['brand']) ? trim($data['brand']) : $existing['brand'];
         $category = isset($data['category']) ? trim($data['category']) : $existing['category'];
         $price = isset($data['price']) ? (float) $data['price'] : $existing['price'];
-        $image = array_key_exists('image', $data) ? trim($data['image']) : $existing['image'];
+        $image = !empty($data['image']) ? trim($data['image']) : $existing['image'];
         $description = isset($data['description']) ? trim($data['description']) : (isset($data['benefits']) ? trim($data['benefits']) : $existing['description']);
         $isActive = array_key_exists('is_active', $data) ? (int) $data['is_active'] : $existing['is_active'];
 
