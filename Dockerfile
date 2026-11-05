@@ -10,6 +10,11 @@ WORKDIR /var/www
 RUN mkdir -p /var/www/uploads/products /var/www/database \
     && chmod -R 777 /var/www/uploads /var/www/database
 
+# Configurar límites de subida de archivos para imágenes de productos
+RUN echo "upload_max_filesize = 25M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 30M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini
+
 # Copiar archivos del backend
 COPY . /var/www
 
