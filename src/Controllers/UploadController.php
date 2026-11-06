@@ -8,8 +8,17 @@ class UploadController
 
     public function __construct(?string $dir = null)
     {
+        // Cargar config.php opcional (para entornos cPanel)
+        $configFile = dirname(__DIR__, 2) . '/config.php';
+        if (file_exists($configFile)) {
+            require_once $configFile;
+        }
+
         $defaultDir = dirname(__DIR__, 2) . '/uploads/products';
-        $this->uploadDir = $dir ?: (getenv('UPLOAD_DIR') ?: $defaultDir);
+        if (!is_dir($defaultDir) && is_dir(dirname(__DIR__, 2) . '/../uploads/products')) {
+            $defaultDir = dirname(__DIR__, 2) . '/../uploads/products';
+        }
+        $this->uploadDir = $dir ?: (defined('UPLOAD_DIR') ? UPLOAD_DIR : (getenv('UPLOAD_DIR') ?: $defaultDir));
 
         if (!is_dir($this->uploadDir)) {
             mkdir($this->uploadDir, 0777, true);

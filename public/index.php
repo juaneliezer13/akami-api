@@ -67,6 +67,14 @@ function getJsonInput(): array
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Method Override para servidores y entornos con verbos restringidos (LiteSpeed, mod_security, cPanel)
+if ($method === 'POST') {
+    $override = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? ($_POST['_method'] ?? '');
+    if (!empty($override)) {
+        $method = strtoupper(trim($override));
+    }
+}
+
 // Normalizar prefijo /api si existe
 if (str_starts_with($uri, '/api')) {
     $uri = substr($uri, 4);
@@ -227,8 +235,9 @@ try {
         jsonResponse(['success' => true, 'is_active' => $status, 'message' => $status ? 'Producto visible en catálogo.' : 'Producto ocultado.']);
     }
 
-    // Eliminar producto
-    if (preg_match('#^/admin/products/(\d+)$#', $uri, $matches) && $method === 'DELETE') {
+    // Eliminar producto (Soporta DELETE, POST /delete y Method-Override)
+    if ((preg_match('#^/admin/products/(\d+)$#', $uri, $matches) && ($method === 'DELETE' || $method === 'POST'))
+        || (preg_match('#^/admin/products/(\d+)/delete$#', $uri, $matches) && ($method === 'POST' || $method === 'DELETE'))) {
         $requireAuth();
         $id = (int) $matches[1];
         $ok = $productCtrl->delete($id);
@@ -274,7 +283,7 @@ try {
         jsonResponse(['success' => true, 'data' => $brand], 201);
     }
 
-    if (preg_match('#^/admin/brands/(\d+)$#', $uri, $matches) && $method === 'PUT') {
+    if (preg_match('#^/admin/brands/(\d+)$#', $uri, $matches) && ($method === 'PUT' || $method === 'POST')) {
         $requireAuth();
         $data = getJsonInput();
         $ok = $brandCtrl->update((int) $matches[1], $data['name'] ?? '');
@@ -284,7 +293,8 @@ try {
         jsonResponse(['success' => true, 'message' => 'Marca actualizada exitosamente.']);
     }
 
-    if (preg_match('#^/admin/brands/(\d+)$#', $uri, $matches) && $method === 'DELETE') {
+    if ((preg_match('#^/admin/brands/(\d+)$#', $uri, $matches) && ($method === 'DELETE' || $method === 'POST'))
+        || (preg_match('#^/admin/brands/(\d+)/delete$#', $uri, $matches) && ($method === 'POST' || $method === 'DELETE'))) {
         $requireAuth();
         $ok = $brandCtrl->delete((int) $matches[1]);
         if (!$ok) {
@@ -301,7 +311,7 @@ try {
         jsonResponse(['success' => true, 'data' => $cat], 201);
     }
 
-    if (preg_match('#^/admin/categories/(\d+)$#', $uri, $matches) && $method === 'PUT') {
+    if (preg_match('#^/admin/categories/(\d+)$#', $uri, $matches) && ($method === 'PUT' || $method === 'POST')) {
         $requireAuth();
         $data = getJsonInput();
         $ok = $categoryCtrl->update((int) $matches[1], $data['name'] ?? '');
@@ -311,7 +321,8 @@ try {
         jsonResponse(['success' => true, 'message' => 'Categoría actualizada exitosamente.']);
     }
 
-    if (preg_match('#^/admin/categories/(\d+)$#', $uri, $matches) && $method === 'DELETE') {
+    if ((preg_match('#^/admin/categories/(\d+)$#', $uri, $matches) && ($method === 'DELETE' || $method === 'POST'))
+        || (preg_match('#^/admin/categories/(\d+)/delete$#', $uri, $matches) && ($method === 'POST' || $method === 'DELETE'))) {
         $requireAuth();
         $ok = $categoryCtrl->delete((int) $matches[1]);
         if (!$ok) {

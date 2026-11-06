@@ -15,14 +15,20 @@ class Database
             return self::$instance;
         }
 
-        $connectionType = getenv('DB_CONNECTION') ?: 'sqlite';
+        // Cargar config.php opcional (para entornos cPanel / Hosting compartido)
+        $configFile = dirname(__DIR__) . '/config.php';
+        if (file_exists($configFile)) {
+            require_once $configFile;
+        }
+
+        $connectionType = defined('DB_CONNECTION') ? DB_CONNECTION : (getenv('DB_CONNECTION') ?: 'sqlite');
 
         if ($connectionType === 'mysql') {
-            $host = getenv('DB_HOST') ?: '127.0.0.1';
-            $port = getenv('DB_PORT') ?: '3306';
-            $dbName = getenv('DB_DATABASE') ?: 'akami_db';
-            $user = getenv('DB_USERNAME') ?: 'root';
-            $pass = getenv('DB_PASSWORD') ?: '';
+            $host = defined('DB_HOST') ? DB_HOST : (getenv('DB_HOST') ?: '127.0.0.1');
+            $port = defined('DB_PORT') ? DB_PORT : (getenv('DB_PORT') ?: '3306');
+            $dbName = defined('DB_DATABASE') ? DB_DATABASE : (getenv('DB_DATABASE') ?: 'akami_db');
+            $user = defined('DB_USERNAME') ? DB_USERNAME : (getenv('DB_USERNAME') ?: 'root');
+            $pass = defined('DB_PASSWORD') ? DB_PASSWORD : (getenv('DB_PASSWORD') ?: '');
 
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
             self::$instance = new PDO($dsn, $user, $pass, [
@@ -33,7 +39,10 @@ class Database
         } else {
             // Default: SQLite
             $defaultPath = dirname(__DIR__, 2) . '/database/akami.sqlite';
-            $dbPath = getenv('DB_PATH') ?: $defaultPath;
+            if (!file_exists($defaultPath) && file_exists(dirname(__DIR__) . '/../database/akami.sqlite')) {
+                $defaultPath = dirname(__DIR__) . '/../database/akami.sqlite';
+            }
+            $dbPath = defined('DB_PATH') ? DB_PATH : (getenv('DB_PATH') ?: $defaultPath);
             $dir = dirname($dbPath);
 
             if (!is_dir($dir)) {
@@ -48,10 +57,10 @@ class Database
             // Optimización y modo WAL para SQLite
             self::$instance->exec('PRAGMA journal_mode = WAL;');
             self::$instance->exec('PRAGMA foreign_keys = ON;');
-        }
 
-        self::initSchema(self::$instance);
-        Seeder::seedIfEmpty(self::$instance);
+            self::initSchema(self::$instance);
+            Seeder::seedIfEmpty(self::$instance);
+        }
 
         return self::$instance;
     }
