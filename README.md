@@ -57,11 +57,11 @@ Backend RESTful ligero en **PHP 8.2** con base de datos **SQLite** (PDO WAL mode
 
 ---
 
-## 🐳 Despliegue con Docker Compose (Puerto 15001)
+## 🐳 Despliegue con Docker Compose (Puerto 16001)
 
 ### Ejecución autónoma:
 ```bash
-# Iniciar microservicio backend en puerto 15001
+# Iniciar microservicio backend en puerto 16001
 docker compose up -d
 
 # Detener microservicio
@@ -71,7 +71,7 @@ docker compose down
 ### Configuración personalizada (.env):
 Copia `.env.example` a `.env` para personalizar el puerto o las rutas de volumen:
 ```bash
-BACK_PORT=15001
+BACK_PORT=16001
 DB_DIR=../database
 UPLOADS_DIR=../uploads
 ```

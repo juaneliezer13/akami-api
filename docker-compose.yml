@@ -1,5 +1,5 @@
 # 🐳 Docker Compose — Akami API (Microservicio Backend PHP 8.2 + SQLite)
-# Expone la API RESTful en el puerto 15001 (configurable via BACK_PORT)
+# Expone la API RESTful en el puerto 16001 (configurable via BACK_PORT)
 
 services:
   api_akami:
@@ -10,7 +10,7 @@ services:
     container_name: api_akami
     restart: unless-stopped
     ports:
-      - "${BACK_PORT:-15001}:8000"
+      - "${BACK_PORT:-16001}:8000"
     volumes:
       - ${DB_DIR:-../database}:/var/www/database
       - ${UPLOADS_DIR:-../uploads}:/var/www/uploads
