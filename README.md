@@ -78,5 +78,12 @@ UPLOADS_DIR=../uploads
 
 ---
 
+## 🏷️ Historial de Versiones y Release Notes
+
+Todas las notas de lanzamiento e información de versiones del proyecto están centralizadas en el repositorio de documentación:
+- [`akami-docs/releases/`](../akami-docs/releases/README.md)
+
+---
+
 ## 📄 Licencia
 Privado / Propietario — Akami K-Beauty.
